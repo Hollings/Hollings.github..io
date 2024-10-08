@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Library - Your Site Name</title>
+    <link rel="stylesheet" href="your-main-stylesheet.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="audio-library.html">Audio Library</a></li>
+                <!-- Add other navigation items as needed -->
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h1>Audio Library</h1>
+        <div id="audio-container"></div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Your Name or Site Name. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const folders = [
+            'Intro',
+            'Boy Lunch',
+            'Swamp Nights',
+            'Interlude (Swamp Nights Fucking Sucks)',
+            'Im Cracked',
+            'www.purple',
+            'Monday'
+        ];
+
+        const username = 'Hollings';
+        const repo = 'Hollings.github.io';
+        const releaseTag = 'v1.0'; // Change this to your actual release tag
+
+        const audioContainer = document.getElementById('audio-container');
+
+        async function fetchAndCreateAudioElements() {
+            for (const folder of folders) {
+                const folderHeader = document.createElement('h2');
+                folderHeader.textContent = folder;
+                audioContainer.appendChild(folderHeader);
+
+                try {
+                    const response = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/${folder}?ref=${releaseTag}`);
+                    const data = await response.json();
+
+                    const wavFiles = data.filter(file => file.name.endsWith('.wav'));
+
+                    for (const file of wavFiles) {
+                        const fileUrl = `https://github.com/${username}/${repo}/releases/download/${releaseTag}/${folder}/${file.name}`;
+
+                        const audioElement = document.createElement('audio');
+                        audioElement.controls = true;
+
+                        const sourceElement = document.createElement('source');
+                        sourceElement.src = fileUrl;
+                        sourceElement.type = 'audio/wav';
+
+                        audioElement.appendChild(sourceElement);
+
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = fileUrl;
+                        downloadLink.download = file.name;
+                        downloadLink.textContent = `Download ${file.name}`;
+
+                        const wrapper = document.createElement('div');
+                        wrapper.appendChild(document.createTextNode(file.name + ': '));
+                        wrapper.appendChild(audioElement);
+                        wrapper.appendChild(document.createElement('br'));
+                        wrapper.appendChild(downloadLink);
+                        wrapper.appendChild(document.createElement('hr'));
+
+                        audioContainer.appendChild(wrapper);
+                    }
+                } catch (error) {
+                    console.error(`Error fetching files from ${folder}:`, error);
+                    const errorMsg = document.createElement('p');
+                    errorMsg.textContent = `Error loading files from ${folder}`;
+                    audioContainer.appendChild(errorMsg);
+                }
+            }
+        }
+
+        fetchAndCreateAudioElements();
+    </script>
+</body>
+</html>
